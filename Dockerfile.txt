@@ -1,0 +1,30 @@
+# Usa una imagen base de Ubuntu
+FROM ubuntu:latest
+
+# Establece el directorio de trabajo
+WORKDIR /app
+
+# Actualiza los repositorios e instala Nginx y PHP (para WordPress)
+RUN apt-get update && apt-get install -y \
+    nginx \
+    php-fpm \
+    php-mysql \
+    wget \
+    curl \
+    unzip \
+    && apt-get clean
+
+# Descarga e instala WordPress
+RUN curl -O https://wordpress.org/latest.tar.gz \
+    && tar -xvzf latest.tar.gz \
+    && rm latest.tar.gz \
+    && mv wordpress /var/www/html/
+
+# Copia el archivo de configuración de Nginx
+COPY default.conf /etc/nginx/sites-available/default
+
+# Expone el puerto 80 para Nginx
+EXPOSE 80
+
+# Comando para iniciar tanto Nginx como PHP-FPM
+CMD service nginx start && php-fpm
